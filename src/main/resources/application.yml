@@ -1,0 +1,244 @@
+# =============================================================================
+# Education Management Platform
+#
+# One code base, many clients. Everything that differs between clients lives
+# under "project" below: branding, which modules exist, which roles can sign in,
+# and the academic rules. No client name appears anywhere in the source code.
+#
+# Every value can be overridden with an environment variable using Spring's
+# relaxed binding, e.g. project.role.directors.enabled -> PROJECT_ROLE_DIRECTORS_ENABLED
+# =============================================================================
+
+project:
+
+  client:
+    code: ${PROJECT_CLIENT_CODE:PROFINZ}
+    name: ${PROJECT_CLIENT_NAME:PROFINZ}
+    tagline: ${PROJECT_CLIENT_TAGLINE:Education Management Platform}
+    timezone: ${PROJECT_CLIENT_TIMEZONE:Asia/Kolkata}
+    currency: ${PROJECT_CLIENT_CURRENCY:INR}
+    locale: ${PROJECT_CLIENT_LOCALE:en-IN}
+
+  branding:
+    # Served by the frontend. Replace the file, or point this at another one.
+    logo: ${PROJECT_BRANDING_LOGO:/assets/branding/profinz-logo.png}
+    primary-color: ${PROJECT_BRANDING_PRIMARY_COLOR:#1d4f91}
+    # Optional line under "Sign in". When empty a default welcome with the client name is shown.
+    login-message: ${PROJECT_BRANDING_LOGIN_MESSAGE:}
+
+  # A module decides whether a business area exists at all for this client.
+  # A disabled module is rejected by the backend, not just hidden in the UI.
+  module:
+    academics:
+      enabled: true
+    administration:
+      enabled: true
+    fees:
+      enabled: true
+    notifications:
+      enabled: true
+    reports:
+      enabled: true
+    student-portal:
+      enabled: true
+    # Future modules - flags exist so a client can be switched on without code changes.
+    sales:
+      enabled: false
+    accounts:
+      enabled: false
+    directors:
+      enabled: false
+
+  # A role decides which kind of user may sign in. Users whose roles are all
+  # disabled cannot sign in, and a disabled role contributes no permissions.
+  role:
+    directors:
+      enabled: false
+    administrative:
+      enabled: true
+    sales:
+      enabled: false
+    accounts:
+      enabled: false
+    academics:
+      enabled: true
+    students:
+      enabled: true
+    mentors:
+      enabled: true
+    faculty:
+      enabled: true
+
+  academics:
+    performance:
+      enabled: true
+      # Relative weights of each component in the overall performance score.
+      # Components without data are skipped and the rest are re-weighted.
+      weights:
+        daily-test: 20
+        weekly-test: 20
+        exam: 50
+        attendance: 10
+      # Grade bands, checked from the top. The first band whose minimum is met wins.
+      grades:
+        - { grade: "A+", min: 90 }
+        - { grade: "A", min: 80 }
+        - { grade: "B+", min: 70 }
+        - { grade: "B", min: 60 }
+        - { grade: "C", min: 50 }
+        - { grade: "D", min: 40 }
+        - { grade: "F", min: 0 }
+    # Students may see syllabus progress for their batch.
+    student-syllabus-visible: true
+
+  student:
+    # A student login is created with the admission number as username.
+    default-password: ${PROJECT_STUDENT_DEFAULT_PASSWORD:Welcome@123}
+
+  notifications:
+    channels:
+      whatsapp: true
+      in-app: true
+      # Provider integrations not built yet - kept off.
+      sms: false
+      email: false
+    # Which channels each event uses. WhatsApp goes to the parent, in-app to the student.
+    events:
+      student-absent: [WHATSAPP, IN_APP]
+      student-late: [WHATSAPP, IN_APP]
+      fee-due: [WHATSAPP, IN_APP]
+      payment-received: [WHATSAPP, IN_APP]
+      exam-result-published: [WHATSAPP, IN_APP]
+      progress-card-published: [WHATSAPP, IN_APP]
+      fine-created: [WHATSAPP, IN_APP]
+      class-schedule-changed: [IN_APP]
+      general: [WHATSAPP]
+
+  fees:
+    # Receipt numbers look like PROFINZ-RCPT-2026-000001 (prefix defaults to the client code).
+    receipt-prefix: ${PROJECT_FEES_RECEIPT_PREFIX:}
+    reminder:
+      enabled: ${FEE_REMINDER_ENABLED:true}
+      cron: ${FEE_REMINDER_CRON:0 0 9 * * *}
+      # Days after the due date on which reminders 1, 2 and 3 go out.
+      offset-days: ${FEE_REMINDER_OFFSET_DAYS:0,3,7}
+
+  bootstrap:
+    # First administrator for an empty production database. Ignored once any user exists.
+    admin-username: ${BOOTSTRAP_ADMIN_USERNAME:}
+    admin-password: ${BOOTSTRAP_ADMIN_PASSWORD:}
+    # Development sample data for the configured client. Keep false in production.
+    seed-sample-data: ${SEED_SAMPLE_DATA:true}
+
+storage:
+  student-photos:
+    # Absolute folder for uploaded student photos; override for another host.
+    directory: ${STUDENT_PHOTO_DIRECTORY:D:/Profinz/photo/student}
+
+spring:
+  config:
+    # Optional local secrets for IDE/Maven (backend working directory) and root java -jar.
+    import: "optional:file:../.env[.properties],optional:file:.env[.properties]"
+  servlet:
+    multipart:
+      max-file-size: 5MB
+      max-request-size: 6MB
+  application:
+    name: education
+
+  datasource:
+    url: ${SPRING_DATASOURCE_URL:jdbc:mysql://${DB_HOST:iriguchi.proxy.rlwy.net}:${DB_PORT:23501}/${DB_NAME:profinz}?useSSL=false&allowPublicKeyRetrieval=true&connectionTimeZone=UTC&forceConnectionTimeZoneToSession=true&characterEncoding=UTF-8}
+    username: ${DB_USERNAME:root}
+    password: ${DB_PASSWORD:uMrJKdGCBdYQKvkHVvWfINqBbebfUHGx}
+    hikari:
+      maximum-pool-size: ${DB_POOL_SIZE:10}
+      pool-name: education-pool
+
+  # Flyway owns the schema. Hibernate only validates that entities match it.
+  flyway:
+    enabled: true
+    locations: classpath:db/migration
+    validate-on-migrate: true
+    clean-disabled: true
+
+  jpa:
+    show-sql: true
+    open-in-view: false
+    hibernate:
+      ddl-auto: validate
+    properties:
+      hibernate:
+        jdbc:
+          time_zone: UTC
+
+  jackson:
+    default-property-inclusion: non_null
+    serialization:
+      write-dates-as-timestamps: false
+
+  task:
+    scheduling:
+      pool:
+        size: 2
+
+server:
+  port: ${SERVER_PORT:8080}
+  error:
+    include-stacktrace: never
+    include-message: never
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info
+  endpoint:
+    health:
+      show-details: never
+
+app:
+  # Development-only default. ALWAYS override JWT_SECRET in production.
+  jwt:
+    secret: ${JWT_SECRET:dev-only-secret-change-me-in-production-min-32-bytes-long}
+    access-token-minutes: ${JWT_ACCESS_TOKEN_MINUTES:120}
+    refresh-token-days: ${JWT_REFRESH_TOKEN_DAYS:7}
+  cors:
+    allowed-origins: ${CORS_ALLOWED_ORIGINS:http://localhost:5173,http://localhost:3000}
+
+whatsapp:
+  # WABI is the configured connector; false selects the mock sender.
+  enabled: ${WHATSAPP_ENABLED:true}
+  provider: ${WHATSAPP_PROVIDER:WABI}
+  wabi:
+    base-url: ${WABI_BASE_URL:https://coyot-wabi-backend.onrender.com}
+    api-key: ${WABI_API_KEY:}
+    event: ${WABI_EVENT:STUDENT_LATE}
+    opt-in-source: ${WABI_OPT_IN_SOURCE:profinz-parent-consent}
+  default-language: ${WHATSAPP_DEFAULT_LANGUAGE:en}
+  connect-timeout-seconds: 10
+  read-timeout-seconds: 20
+  # Approved WABI template name per notification event - never hard-coded elsewhere.
+  templates:
+    STUDENT_ABSENT: ${WHATSAPP_TEMPLATE_STUDENT_ABSENT:student_absent}
+    STUDENT_LATE: ${WHATSAPP_TEMPLATE_STUDENT_LATE:student_partial_attendance_v2}
+    FEE_DUE: ${WHATSAPP_TEMPLATE_FEE_DUE:fee_reminder}
+    PAYMENT_RECEIVED: ${WHATSAPP_TEMPLATE_PAYMENT_RECEIVED:payment_received}
+    EXAM_RESULT_PUBLISHED: ${WHATSAPP_TEMPLATE_EXAM_RESULT_PUBLISHED:exam_result_published}
+    PROGRESS_CARD_PUBLISHED: ${WHATSAPP_TEMPLATE_PROGRESS_CARD_PUBLISHED:progress_card_published}
+    FINE_CREATED: ${WHATSAPP_TEMPLATE_FINE_CREATED:fine_created}
+    CLASS_SCHEDULE_CHANGED: ${WHATSAPP_TEMPLATE_CLASS_SCHEDULE_CHANGED:class_schedule_changed}
+    GENERAL: ${WHATSAPP_TEMPLATE_GENERAL:general_notice}
+  queue:
+    enabled: ${NOTIFICATION_QUEUE_ENABLED:true}
+    # Daily at 11:00 India time. Spring cron: second minute hour day month weekday.
+    daily-cron: "${NOTIFICATION_QUEUE_DAILY_CRON:0 0 11 * * *}"
+    time-zone: ${NOTIFICATION_QUEUE_TIME_ZONE:Asia/Kolkata}
+    # Used only when the alternative interval annotation is enabled (1800 seconds = 30 minutes).
+    fixed-delay-seconds: ${NOTIFICATION_QUEUE_DELAY_SECONDS:1800}
+    batch-size: ${NOTIFICATION_BATCH_SIZE:20}
+    max-retries: ${NOTIFICATION_MAX_RETRIES:3}
+    retry-backoff-minutes: ${NOTIFICATION_RETRY_BACKOFF_MINUTES:5}
+
+logging:
+  level:
+    com.coyotai.education: ${LOG_LEVEL:INFO}

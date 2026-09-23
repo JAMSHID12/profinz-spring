@@ -1,0 +1,31 @@
+# Integration test profile. The database itself is supplied by TestDatabase
+# (IT_DB_URL or a Testcontainers MySQL) and is cleaned and re-migrated once per run.
+spring:
+  flyway:
+    clean-disabled: false
+
+project:
+  bootstrap:
+    # The demo data doubles as a realistic fixture: known users, batches and students.
+    seed-sample-data: true
+
+app:
+  jwt:
+    secret: integration-test-secret-value-that-is-long-enough
+
+whatsapp:
+  enabled: false
+  queue:
+    # Tests drive the queue explicitly instead of waiting for the timer.
+    enabled: false
+
+logging:
+  level:
+    com.coyotai.education: WARN
+    org.hibernate: WARN
+    org.flywaydb: WARN
+    org.testcontainers: WARN
+
+storage:
+  student-photos:
+    directory: target/test-student-photos
