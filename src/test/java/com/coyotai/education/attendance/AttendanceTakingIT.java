@@ -141,7 +141,7 @@ class AttendanceTakingIT extends IntegrationTestBase {
         JsonNode sheet = data(getAs(mentor, "/api/attendance/sheet?batchId={b}&date={d}", batch, date));
         Map<String, Map<String, Object>> details = new LinkedHashMap<>();
         details.put("ADM26001", Map.of("status", "LATE", "lateMinutes", 30, "noUniform", true, "remarks", "Bus was late"));
-        details.put("ADM26002", Map.of("status", "ABSENT", "absenceReason", "MEDICAL", "noUniform", true));
+        details.put("ADM26002", Map.of("status", "ABSENT", "absenceReason", "INFORMED", "noUniform", true));
         details.put("ADM26003", Map.of("status", "PRESENT", "lateMinutes", 20, "noIdTag", true));
         String body = json("batchId", batch, "date", date, "entries", entries(sheet, details));
 
@@ -156,7 +156,7 @@ class AttendanceTakingIT extends IntegrationTestBase {
         assertThat(late.path("noUniform").asBoolean()).isTrue();
         assertThat(late.path("remarks").asText()).isEqualTo("Bus was late");
         JsonNode absent = find(saved, "admissionNumber", "ADM26002");
-        assertThat(absent.path("absenceReason").asText()).isEqualTo("MEDICAL");
+        assertThat(absent.path("absenceReason").asText()).isEqualTo("INFORMED");
         assertThat(absent.path("noUniform").asBoolean()).as("nothing is observed about an absent student").isFalse();
         JsonNode present = find(saved, "admissionNumber", "ADM26003");
         assertThat(present.path("lateMinutes").isMissingNode()).as("minutes only for late").isTrue();
@@ -196,13 +196,13 @@ class AttendanceTakingIT extends IntegrationTestBase {
         assertThat(data(getAs(mentor, history, batch, date, date)).path("content").get(0).path("canCorrect").asBoolean())
                 .isTrue();
 
-        String correction = json("status", "EXCUSED", "absenceReason", "PERSONAL");
+        String correction = json("status", "EXCUSED", "absenceReason", "INFORMED");
         putAs(admin, "/api/attendance/{id}", correction, markId).andExpect(status().isForbidden());
         putAs(login("faculty", "faculty123"), "/api/attendance/{id}", correction, markId).andExpect(status().isForbidden());
         putAs(mentor, "/api/attendance/{id}", correction, markId)
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.data.status").value("EXCUSED"))
-                .andExpect(jsonPath("$.data.absenceReason").value("PERSONAL"));
+                .andExpect(jsonPath("$.data.absenceReason").value("INFORMED"));
     }
 
     /** Everyone present, with per-student changes keyed by admission number. */

@@ -32,7 +32,7 @@ public final class StudentDtos {
             LocalDate admissionDate,
             Student.Status status,
             /* Create a portal login (username = admission number) when saving a new student. */
-            Boolean createLogin
+            Boolean createLogin, Student.EducationCategory educationCategory, Long educationCategoryId
     ) {
     }
 
@@ -60,7 +60,7 @@ public final class StudentDtos {
 
     public record StudentResponse(Long id, String studentCode, String admissionNumber, String fullName,
                                   String mobile, String email, Ref course, Ref batch, ParentSummary parent,
-                                  LocalDate admissionDate, Student.Status status, String username) {
+                                  LocalDate admissionDate, Student.Status status, String username, Student.EducationCategory educationCategory, EducationCategoryService.Response educationCategoryDetail) {
 
         public static StudentResponse from(Student student) {
             return new StudentResponse(student.getId(), student.getStudentCode(), student.getAdmissionNumber(),
@@ -69,14 +69,14 @@ public final class StudentDtos {
                     student.getBatch() == null ? null : Ref.of(student.getBatch().getId(), student.getBatch().getName()),
                     ParentSummary.from(student.getParent()),
                     student.getAdmissionDate(), student.getStatus(),
-                    student.getUser() == null ? null : student.getUser().getUsername());
+                    student.getUser() == null ? null : student.getUser().getUsername(), student.getEducationCategory(), EducationCategoryService.Response.from(student.getEducationCategoryMaster()));
         }
     }
 
     public record StudentDetail(Long id, String studentCode, String admissionNumber, String fullName,
                                 LocalDate dateOfBirth, String gender, String mobile, String email, String address,
                                 String photoUrl, Ref course, Ref batch, Ref academicYear, Ref mentor,
-                                ParentSummary parent, LocalDate admissionDate, Student.Status status, String username) {
+                                ParentSummary parent, LocalDate admissionDate, Student.Status status, String username, Student.EducationCategory educationCategory, EducationCategoryService.Response educationCategoryDetail) {
 
         public static StudentDetail from(Student student) {
             var batch = student.getBatch();
@@ -91,7 +91,7 @@ public final class StudentDtos {
                     mentor == null ? null : Ref.of(mentor.getId(), mentor.getFullName()),
                     ParentSummary.from(student.getParent()),
                     student.getAdmissionDate(), student.getStatus(),
-                    student.getUser() == null ? null : student.getUser().getUsername());
+                    student.getUser() == null ? null : student.getUser().getUsername(), student.getEducationCategory(), EducationCategoryService.Response.from(student.getEducationCategoryMaster()));
         }
     }
 

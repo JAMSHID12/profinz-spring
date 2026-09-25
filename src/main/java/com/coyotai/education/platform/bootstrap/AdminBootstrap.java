@@ -44,7 +44,7 @@ public class AdminBootstrap implements ApplicationRunner {
         String password = configService.bootstrap().getAdminPassword();
         if (username == null || username.isBlank() || password == null || password.isBlank()) {
             log.warn("The database has no users. Set BOOTSTRAP_ADMIN_USERNAME and BOOTSTRAP_ADMIN_PASSWORD "
-                    + "(or SEED_SAMPLE_DATA=true for a demo) and restart to create the first administrator.");
+                    + "and restart to create the first administrator.");
             return;
         }
         if (password.length() < 8) {

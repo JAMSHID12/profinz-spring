@@ -28,6 +28,7 @@ D:\Project\Profinz\backend\src\main\java\com\coyotai\education\assessment\ExamTy
 D:\Project\Profinz\backend\src\main\java\com\coyotai\education\assessment\MarksValidator.java
 D:\Project\Profinz\backend\src\main\java\com\coyotai\education\assessment\PublicationStatus.java
 D:\Project\Profinz\backend\src\main\java\com\coyotai\education\attendance\AbsenceReason.java
+D:\Project\Profinz\backend\src\main\java\com\coyotai\education\attendance\AbsenceReasonConverter.java
 D:\Project\Profinz\backend\src\main\java\com\coyotai\education\attendance\Attendance.java
 D:\Project\Profinz\backend\src\main\java\com\coyotai\education\attendance\AttendanceAccess.java
 D:\Project\Profinz\backend\src\main\java\com\coyotai\education\attendance\AttendanceController.java
@@ -97,6 +98,10 @@ D:\Project\Profinz\backend\src\main\java\com\coyotai\education\fee\PaymentReposi
 D:\Project\Profinz\backend\src\main\java\com\coyotai\education\fee\PaymentService.java
 D:\Project\Profinz\backend\src\main\java\com\coyotai\education\fee\StudentFee.java
 D:\Project\Profinz\backend\src\main\java\com\coyotai\education\fee\StudentFeeRepository.java
+D:\Project\Profinz\backend\src\main\java\com\coyotai\education\imports\ExcelFiles.java
+D:\Project\Profinz\backend\src\main\java\com\coyotai\education\imports\ExcelImportController.java
+D:\Project\Profinz\backend\src\main\java\com\coyotai\education\imports\ExcelImportService.java
+D:\Project\Profinz\backend\src\main\java\com\coyotai\education\imports\ImportKind.java
 D:\Project\Profinz\backend\src\main\java\com\coyotai\education\notification\Notification.java
 D:\Project\Profinz\backend\src\main\java\com\coyotai\education\notification\NotificationChannel.java
 D:\Project\Profinz\backend\src\main\java\com\coyotai\education\notification\NotificationContent.java
@@ -119,7 +124,6 @@ D:\Project\Profinz\backend\src\main\java\com\coyotai\education\performance\Perfo
 D:\Project\Profinz\backend\src\main\java\com\coyotai\education\performance\PerformanceService.java
 D:\Project\Profinz\backend\src\main\java\com\coyotai\education\platform\bootstrap\AdminBootstrap.java
 D:\Project\Profinz\backend\src\main\java\com\coyotai\education\platform\bootstrap\ClientBootstrap.java
-D:\Project\Profinz\backend\src\main\java\com\coyotai\education\platform\bootstrap\DemoDataSeeder.java
 D:\Project\Profinz\backend\src\main\java\com\coyotai\education\platform\BrandingProperties.java
 D:\Project\Profinz\backend\src\main\java\com\coyotai\education\platform\ClientProperties.java
 D:\Project\Profinz\backend\src\main\java\com\coyotai\education\platform\ModuleCode.java
@@ -150,6 +154,7 @@ D:\Project\Profinz\backend\src\main\java\com\coyotai\education\schedule\Schedule
 D:\Project\Profinz\backend\src\main\java\com\coyotai\education\schedule\ScheduleService.java
 D:\Project\Profinz\backend\src\main\java\com\coyotai\education\schedule\TeachingService.java
 D:\Project\Profinz\backend\src\main\java\com\coyotai\education\scheduler\FeeReminderScheduler.java
+D:\Project\Profinz\backend\src\main\java\com\coyotai\education\scheduler\NotificationScheduleConfiguration.java
 D:\Project\Profinz\backend\src\main\java\com\coyotai\education\scheduler\NotificationScheduler.java
 D:\Project\Profinz\backend\src\main\java\com\coyotai\education\security\AppUserDetails.java
 D:\Project\Profinz\backend\src\main\java\com\coyotai\education\security\AppUserDetailsService.java
@@ -171,6 +176,10 @@ D:\Project\Profinz\backend\src\main\java\com\coyotai\education\staff\MentorRepos
 D:\Project\Profinz\backend\src\main\java\com\coyotai\education\staff\StaffController.java
 D:\Project\Profinz\backend\src\main\java\com\coyotai\education\staff\StaffDtos.java
 D:\Project\Profinz\backend\src\main\java\com\coyotai\education\staff\StaffService.java
+D:\Project\Profinz\backend\src\main\java\com\coyotai\education\student\EducationCategory.java
+D:\Project\Profinz\backend\src\main\java\com\coyotai\education\student\EducationCategoryController.java
+D:\Project\Profinz\backend\src\main\java\com\coyotai\education\student\EducationCategoryRepository.java
+D:\Project\Profinz\backend\src\main\java\com\coyotai\education\student\EducationCategoryService.java
 D:\Project\Profinz\backend\src\main\java\com\coyotai\education\student\ParentContact.java
 D:\Project\Profinz\backend\src\main\java\com\coyotai\education\student\portal\StudentPortalController.java
 D:\Project\Profinz\backend\src\main\java\com\coyotai\education\student\portal\StudentPortalDtos.java
@@ -190,6 +199,7 @@ D:\Project\Profinz\backend\src\main\java\com\coyotai\education\syllabus\Syllabus
 D:\Project\Profinz\backend\src\main\java\com\coyotai\education\syllabus\SyllabusService.java
 D:\Project\Profinz\backend\src\main\java\com\coyotai\education\syllabus\SyllabusTopic.java
 D:\Project\Profinz\backend\src\main\java\com\coyotai\education\syllabus\SyllabusTopicRepository.java
+D:\Project\Profinz\backend\src\main\java\com\coyotai\education\syllabus\TopicEligibility.java
 D:\Project\Profinz\backend\src\main\java\com\coyotai\education\tenant\Client.java
 D:\Project\Profinz\backend\src\main\java\com\coyotai\education\tenant\ClientRegistry.java
 D:\Project\Profinz\backend\src\main\java\com\coyotai\education\tenant\TenantAwareRepository.java

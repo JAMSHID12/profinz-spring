@@ -41,7 +41,7 @@ public final class AttendanceDtos {
      */
     public record Sheet(Ref batch, LocalDate date, ScheduleResponse schedule, boolean alreadyMarked,
                         Instant markedAt, String markedBy, boolean canMark,
-                        List<ScheduleResponse> classesThatDay, List<SheetRow> rows) {
+                        List<ScheduleResponse> classesThatDay, List<SheetRow> rows, List<Ref> holidays) {
     }
 
     /** One request saves the whole sheet: a batch, a date and optionally one scheduled class. */
@@ -49,7 +49,7 @@ public final class AttendanceDtos {
             @NotNull(message = "Batch is required") Long batchId,
             @NotNull(message = "Date is required") LocalDate date,
             Long scheduleId,
-            @NotEmpty(message = "Mark at least one student") @Valid List<Entry> entries
+            @NotNull(message = "Entries are required") @Valid List<Entry> entries
     ) {
 
         public record Entry(
@@ -97,7 +97,7 @@ public final class AttendanceDtos {
                     Ref.of(a.getBatch().getId(), a.getBatch().getName()),
                     schedule == null ? null : Ref.of(schedule.getSubject().getId(), schedule.getSubject().getName()),
                     a.getAttendanceDate(), a.getStatus(), a.getLateMinutes(), a.getAbsenceReason(), a.isNoUniform(),
-                    a.isNoIdTag(), a.getRemarks(), a.getMarkedAt(), a.getNotificationStatus(), canCorrect);
+                    a.isNoIdTag(), a.getRemarks(), a.getMarkedAt(), a.getNotificationStatus(), canCorrect && a.getStatus() != AttendanceStatus.HOLIDAY);
         }
     }
 }

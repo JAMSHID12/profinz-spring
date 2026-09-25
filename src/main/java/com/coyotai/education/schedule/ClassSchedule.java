@@ -48,6 +48,10 @@ public class ClassSchedule extends AuditedEntity {
     @JoinColumn(name = "faculty_id")
     private Faculty faculty;
 
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "topic_id")
+    private com.coyotai.education.syllabus.SyllabusTopic topic;
+
     @Column(name = "schedule_date", nullable = false)
     private LocalDate scheduleDate;
 

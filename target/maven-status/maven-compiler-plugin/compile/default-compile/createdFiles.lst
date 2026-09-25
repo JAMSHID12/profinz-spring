@@ -15,6 +15,7 @@ com\coyotai\education\attendance\AttendanceController.class
 com\coyotai\education\assessment\AssessmentDtos$MarksEntryRequest$Entry.class
 com\coyotai\education\fee\FeeService$PlanTerms.class
 com\coyotai\education\dashboard\DashboardService.class
+com\coyotai\education\student\EducationCategoryService$Response.class
 com\coyotai\education\progress\ProgressCardService$UpdateRequest.class
 com\coyotai\education\student\portal\StudentPortalDtos$ExamResult.class
 com\coyotai\education\academic\AcademicDtos$CourseResponse.class
@@ -51,6 +52,7 @@ com\coyotai\education\student\StudentController.class
 com\coyotai\education\syllabus\SyllabusService$SubjectProgress.class
 com\coyotai\education\attendance\AttendanceAccess.class
 com\coyotai\education\platform\ProjectProperties$BootstrapProperties.class
+com\coyotai\education\imports\ImportKind.class
 com\coyotai\education\performance\PerformanceController.class
 com\coyotai\education\fee\FeeController.class
 com\coyotai\education\platform\bootstrap\ClientBootstrap.class
@@ -60,10 +62,11 @@ com\coyotai\education\discipline\DisciplineController.class
 com\coyotai\education\progress\ProgressCardService.class
 com\coyotai\education\tenant\TenantContext.class
 com\coyotai\education\assessment\AssessmentDtos$ExamTypeResponse.class
+com\coyotai\education\scheduler\NotificationScheduleConfiguration$DailySchedule.class
 com\coyotai\education\staff\StaffService.class
 com\coyotai\education\syllabus\SyllabusService$ProgressRow.class
+com\coyotai\education\imports\ExcelImportService.class
 com\coyotai\education\assessment\AcademicTestResultRepository.class
-com\coyotai\education\util\PasswordUtils$HashParts.class
 com\coyotai\education\assessment\ExamTypeService.class
 com\coyotai\education\schedule\ScheduleController.class
 com\coyotai\education\assessment\AcademicTestResult.class
@@ -90,6 +93,7 @@ com\coyotai\education\schedule\ScheduleDtos$Conflict.class
 com\coyotai\education\notification\Notification.class
 com\coyotai\education\security\SecurityConfig.class
 com\coyotai\education\util\Money.class
+com\coyotai\education\imports\ExcelFiles$1.class
 com\coyotai\education\student\StudentService.class
 com\coyotai\education\auth\AuthDtos$RoleResponse.class
 com\coyotai\education\config\RestClientConfig.class
@@ -103,6 +107,7 @@ com\coyotai\education\auth\RbacService.class
 com\coyotai\education\dashboard\DashboardDtos$StudentRisk.class
 com\coyotai\education\tenant\Client.class
 com\coyotai\education\student\StudentDtos$BatchHistoryEntry.class
+com\coyotai\education\imports\ExcelImportService$Result.class
 com\coyotai\education\assessment\AssessmentDtos.class
 com\coyotai\education\progress\ProgressCardService$Card.class
 com\coyotai\education\fee\FeeDtos$Receipt.class
@@ -125,6 +130,7 @@ com\coyotai\education\dashboard\DashboardDtos$TodaySnapshot.class
 com\coyotai\education\fee\FeeDtos$PlanUpdateRequest.class
 com\coyotai\education\schedule\ScheduleDtos$RegisterRequest.class
 com\coyotai\education\platform\ProjectProperties$AcademicsProperties.class
+com\coyotai\education\student\EducationCategoryController.class
 com\coyotai\education\academic\AcademicDtos$CourseRequest.class
 com\coyotai\education\platform\ModuleCode.class
 com\coyotai\education\schedule\ClassRegisterEntryRepository.class
@@ -164,16 +170,19 @@ com\coyotai\education\whatsapp\dto\NotificationPayload.class
 com\coyotai\education\assessment\AcademicTest$Type.class
 com\coyotai\education\syllabus\SyllabusService$BatchSyllabus.class
 com\coyotai\education\staff\MentorRepository.class
+com\coyotai\education\student\EducationCategoryRepository.class
 com\coyotai\education\attendance\Attendance$NotificationDecision.class
 com\coyotai\education\discipline\DisciplineDtos$RecordRequest.class
 com\coyotai\education\dashboard\DashboardDtos$Summary.class
 com\coyotai\education\academic\AcademicDtos$AcademicYearResponse.class
 com\coyotai\education\fee\FeeDtos$DiscountRequest.class
+com\coyotai\education\student\EducationCategoryService$Request.class
 com\coyotai\education\syllabus\SyllabusController.class
 com\coyotai\education\student\portal\StudentPortalDtos$MyExams.class
 com\coyotai\education\dashboard\AttendanceInsightsService$Period.class
 com\coyotai\education\academic\AcademicDtos.class
 com\coyotai\education\schedule\TeachingService.class
+com\coyotai\education\student\EducationCategoryService.class
 com\coyotai\education\staff\StaffDtos$AssignmentRequest.class
 com\coyotai\education\assessment\AssessmentDtos$ExamResponse.class
 com\coyotai\education\common\RecordStatus.class
@@ -187,6 +196,7 @@ com\coyotai\education\notification\NotificationService$PublishResult.class
 com\coyotai\education\notification\NotificationSenders$2.class
 com\coyotai\education\parentmeeting\ParentMeetingService$MeetingRequest.class
 com\coyotai\education\whatsapp\WhatsAppConfig.class
+com\coyotai\education\attendance\AbsenceReasonConverter.class
 com\coyotai\education\platform\ModuleGuardInterceptor.class
 com\coyotai\education\notification\NotificationEvent.class
 com\coyotai\education\platform\ProjectProperties$NotificationProperties.class
@@ -209,6 +219,7 @@ com\coyotai\education\schedule\ClassScheduleRepository.class
 com\coyotai\education\assessment\ExamRepository.class
 com\coyotai\education\tenant\TenantIdentifierResolver.class
 com\coyotai\education\assessment\AssessmentDtos$TestRequest.class
+com\coyotai\education\imports\ExcelFiles.class
 com\coyotai\education\schedule\ScheduleService.class
 com\coyotai\education\notification\NotificationMessageFactory.class
 com\coyotai\education\staff\StaffDtos.class
@@ -224,7 +235,6 @@ com\coyotai\education\performance\PerformanceService$Assessment.class
 com\coyotai\education\notification\NotificationQueueProcessor.class
 com\coyotai\education\schedule\ScheduleDtos$ScheduleResponse.class
 com\coyotai\education\platform\ProjectProperties$Weights.class
-com\coyotai\education\platform\bootstrap\DemoDataSeeder.class
 com\coyotai\education\platform\PublicConfigController$PublicConfig.class
 com\coyotai\education\staff\Faculty.class
 com\coyotai\education\attendance\AttendanceDtos$BulkRequest.class
@@ -261,6 +271,7 @@ com\coyotai\education\auth\AuthDtos$SessionUser.class
 com\coyotai\education\platform\bootstrap\AdminBootstrap.class
 com\coyotai\education\platform\SettingsController$Settings.class
 com\coyotai\education\whatsapp\WhatsAppProperties$Queue.class
+com\coyotai\education\imports\ExcelFiles$RowData.class
 com\coyotai\education\syllabus\SyllabusTopic.class
 com\coyotai\education\parentmeeting\ParentMeetingController.class
 com\coyotai\education\student\StudentIdentifiers.class
@@ -270,10 +281,13 @@ com\coyotai\education\fee\PaymentRepository.class
 com\coyotai\education\notification\NotificationSenders.class
 com\coyotai\education\tenant\TenantAwareRepository.class
 com\coyotai\education\academic\AcademicController.class
+com\coyotai\education\scheduler\NotificationScheduleConfiguration.class
 com\coyotai\education\common\Ref.class
+com\coyotai\education\imports\ExcelImportService$RowPreview.class
 com\coyotai\education\parentmeeting\ParentMeeting$Status.class
 com\coyotai\education\assessment\AssessmentDtos$ExamRequest.class
 com\coyotai\education\staff\FacultyAssignment.class
+com\coyotai\education\student\EducationCategory.class
 com\coyotai\education\whatsapp\WhatsAppProperties.class
 com\coyotai\education\student\StudentDtos$StudentRequest.class
 com\coyotai\education\auth\User.class
@@ -311,6 +325,7 @@ com\coyotai\education\discipline\DisciplineDtos$FineStatusRequest.class
 com\coyotai\education\attendance\AttendanceDtos$TakerClass.class
 com\coyotai\education\notification\NotificationService$1.class
 com\coyotai\education\syllabus\SyllabusProgress.class
+com\coyotai\education\imports\ExcelImportController.class
 com\coyotai\education\whatsapp\WhatsAppService.class
 com\coyotai\education\audit\AuditService.class
 com\coyotai\education\discipline\StudentFineRepository.class
@@ -332,6 +347,7 @@ com\coyotai\education\progress\ProgressCardController.class
 com\coyotai\education\attendance\AttendanceDtos$BulkRequest$Entry.class
 com\coyotai\education\staff\FacultyRepository.class
 com\coyotai\education\fee\FeeDtos$BulkPlanResult.class
+com\coyotai\education\imports\ExcelImportService$1.class
 com\coyotai\education\student\portal\StudentPortalDtos$AttendanceEntry.class
 com\coyotai\education\config\AppProperties$Cors.class
 com\coyotai\education\academic\AcademicDtos$AcademicYearRequest.class
@@ -340,13 +356,13 @@ com\coyotai\education\fee\PaymentMethod.class
 com\coyotai\education\auth\AuthDtos$LoginRequest.class
 com\coyotai\education\student\Student.class
 com\coyotai\education\schedule\ClassSchedule.class
-com\coyotai\education\platform\bootstrap\DemoDataSeeder$ExtraBatch.class
 com\coyotai\education\common\UnauthorizedException.class
 com\coyotai\education\staff\StaffDtos$AssignmentResponse.class
 com\coyotai\education\academic\AcademicYear.class
 com\coyotai\education\whatsapp\WhatsAppProperties$Wabi.class
 com\coyotai\education\auth\PermissionRepository.class
 com\coyotai\education\whatsapp\dto\WhatsAppSendResult.class
+com\coyotai\education\scheduler\NotificationScheduleConfiguration$IntervalSchedule.class
 com\coyotai\education\progress\ProgressCardRepository.class
 com\coyotai\education\platform\ProjectProperties$Toggle.class
 com\coyotai\education\discipline\DisciplineDtos$FineRequest.class
@@ -358,6 +374,7 @@ com\coyotai\education\parentmeeting\ParentMeetingService$MeetingResponse.class
 com\coyotai\education\auth\AuthDtos$RolePermissionsRequest.class
 com\coyotai\education\syllabus\SyllabusService$TopicRequest.class
 com\coyotai\education\whatsapp\WhatsAppProperties$Provider.class
+com\coyotai\education\imports\ExcelImportService$Prepared.class
 com\coyotai\education\attendance\AttendanceRepository.class
 com\coyotai\education\staff\FacultyAssignmentRepository.class
 com\coyotai\education\schedule\ScheduleDtos$ScheduleRequest.class

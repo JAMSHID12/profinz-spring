@@ -83,4 +83,33 @@ class WabiWhatsAppServiceTest {
         assertThat(properties.isLive()).isTrue();
         assertThat(new WhatsAppConfig().whatsAppService(client,properties).mode()).isEqualTo("WABI");
     }
+
+    @Test void routesAbsentThroughItsOwnKeyWithoutChangingLateKey() {
+        var settings = new WhatsAppProperties(true, WhatsAppProperties.Provider.WABI,
+                new WhatsAppProperties.Wabi("https://wabi.example", KEY, NotificationEvent.STUDENT_LATE,
+                        "parent-opt-in", Map.of(NotificationEvent.STUDENT_ABSENT, "absent-key")),
+                "en", 10, 20, Map.of(NotificationEvent.STUDENT_ABSENT, "student_absent",
+                        NotificationEvent.STUDENT_LATE, "student_partial_attendance_v2"),
+                new WhatsAppProperties.Queue(true,30,20,3,5));
+        assertThat(settings.wabi().keyFor(NotificationEvent.STUDENT_LATE)).isEqualTo(KEY);
+        assertThat(settings.supportsEvent(NotificationEvent.STUDENT_ABSENT)).isTrue();
+        server.expect(requestTo(URL)).andExpect(header("Authorization", "Bearer absent-key"))
+                .andExpect(content().json("{\"external_id\":\"absent-1\",\"to\":\"+919876543210\",\"contact_name\":\"Parent\",\"parameters\":[\"Parent\",\"Student\",\"Class A\",\"22 Sep 2026\",\"PROFINZ\"],\"opt_in_source\":\"parent-opt-in\"}", true))
+                .andRespond(withSuccess("{\"external_id\":\"absent-1\",\"status\":\"sent\",\"wamid\":\"wamid.absent\"}",MediaType.APPLICATION_JSON));
+        var absent = new NotificationPayload("student_absent", "en", payload.parameters(), "preview");
+        assertThat(new WabiWhatsAppService(client, settings).send("+919876543210", absent,
+                NotificationEvent.STUDENT_ABSENT, "absent-1").success()).isTrue();
+        server.verify();
+    }
+
+    @Test void bindsEventKeysWithoutExposingThemInSettingsText() {
+        var source = new org.springframework.boot.context.properties.source.MapConfigurationPropertySource(Map.of(
+                "whatsapp.wabi.base-url", "https://wabi.example", "whatsapp.wabi.event", "STUDENT_LATE",
+                "whatsapp.wabi.api-key", KEY, "whatsapp.wabi.opt-in-source", "parent-opt-in",
+                "whatsapp.wabi.event-api-keys.STUDENT_ABSENT", "private-absent-key"));
+        var bound = new org.springframework.boot.context.properties.bind.Binder(source)
+                .bind("whatsapp.wabi", WhatsAppProperties.Wabi.class).get();
+        assertThat(bound.keyFor(NotificationEvent.STUDENT_ABSENT)).isEqualTo("private-absent-key");
+        assertThat(bound.toString()).doesNotContain(KEY, "private-absent-key");
+    }
 }

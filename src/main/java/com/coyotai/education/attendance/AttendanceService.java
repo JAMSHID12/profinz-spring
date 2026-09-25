@@ -174,6 +174,13 @@ public class AttendanceService {
         return result;
     }
 
+    // Saved attendance is historical: later profile/topic edits must not rewrite it.
+    private boolean exempt(Student student, ClassSchedule schedule, Attendance existing) {
+        if (existing != null) return existing.getStatus() == AttendanceStatus.HOLIDAY;
+        return schedule != null && schedule.getTopic() != null
+                && !schedule.getTopic().requires(student);
+    }
+
     private static String sessionId(long batchId, long sessionKey) {
         return batchId + ":" + sessionKey;
     }
@@ -195,7 +202,11 @@ public class AttendanceService {
         repository.findSheet(batchId, date, sessionKey)
                 .forEach(attendance -> existing.put(attendance.getStudent().getId(), attendance));
 
-        List<SheetRow> rows = studentRepository.findActiveByBatchId(batchId).stream()
+        List<Student> activeStudents = studentRepository.findActiveByBatchId(batchId);
+        List<Ref> holidays = activeStudents.stream().filter(s -> exempt(s, schedule, existing.get(s.getId())))
+                .map(s -> Ref.of(s.getId(), s.getFullName())).toList();
+        List<SheetRow> rows = activeStudents.stream()
+                .filter(s -> !exempt(s, schedule, existing.get(s.getId())))
                 .map(student -> {
                     Attendance mark = existing.get(student.getId());
                     return new SheetRow(mark == null ? null : mark.getId(), student.getId(), student.getAdmissionNumber(),
@@ -219,7 +230,7 @@ public class AttendanceService {
         return new Sheet(Ref.of(batch.getId(), batch.getName()), date,
                 schedule == null ? null : ScheduleResponse.from(schedule),
                 !existing.isEmpty(), latest == null ? null : latest.getMarkedAt(), markedBy,
-                taker && !date.isAfter(configService.today()), classesThatDay, rows);
+                taker && !date.isAfter(configService.today()), classesThatDay, rows, holidays);
     }
 
     // ---- Taking attendance --------------------------------------------------------------------------
@@ -250,6 +261,21 @@ public class AttendanceService {
         Map<Long, Attendance> existing = new HashMap<>();
         repository.findSheet(batch.getId(), request.date(), sessionKey)
                 .forEach(attendance -> existing.put(attendance.getStudent().getId(), attendance));
+        List<BulkRequest.Entry> entries = new ArrayList<>();
+        for (BulkRequest.Entry entry : request.entries()) {
+            if (!exempt(students.get(entry.studentId()), schedule, existing.get(entry.studentId()))) {
+                if (entry.status() == AttendanceStatus.HOLIDAY) throw new BusinessRuleException("Holiday is assigned automatically by topic eligibility");
+                entries.add(entry);
+            }
+        }
+        for (Student student : students.values()) {
+            if (exempt(student, schedule, existing.get(student.getId()))) {
+                entries.add(new BulkRequest.Entry(student.getId(), AttendanceStatus.HOLIDAY, null, null, false, false, "Not required for this topic"));
+            } else if (!seen.contains(student.getId())) {
+                throw new BusinessRuleException("Mark every eligible student before saving");
+            }
+        }
+        if (entries.isEmpty()) throw new BusinessRuleException("There are no active students to mark");
         Map<Long, List<DisciplineRecord>> linked = linkedRecords(existing.values());
         Observations observations = new Observations();
 
@@ -261,7 +287,7 @@ public class AttendanceService {
         int skipped = 0;
         Map<AttendanceStatus, Integer> tally = new EnumMap<>(AttendanceStatus.class);
 
-        for (BulkRequest.Entry entry : request.entries()) {
+        for (BulkRequest.Entry entry : entries) {
             Student student = students.get(entry.studentId());
             Attendance attendance = existing.get(student.getId());
             AttendanceStatus previous = attendance == null ? null : attendance.getStatus();
@@ -294,7 +320,7 @@ public class AttendanceService {
                 "Attendance for " + batch.getName() + (schedule == null ? " (whole day)" : " / " + schedule.getSubject().getName())
                         + " on " + request.date() + ": " + tally + " (" + created + " new, " + updated + " changed"
                         + (observations.recorded > 0 ? ", " + observations.recorded + " observations recorded" : "") + ")");
-        return new BulkResult(request.entries().size(), created, updated, queued, skipped, observations.recorded);
+        return new BulkResult(entries.size(), created, updated, queued, skipped, observations.recorded);
     }
 
     /** Correction of one mark, by a mentor or faculty member who may take that attendance. */
@@ -302,6 +328,9 @@ public class AttendanceService {
     public Record update(Long id, UpdateRequest request) {
         Attendance attendance = repository.findById(id).orElseThrow(() -> ResourceNotFoundException.of("Attendance", id));
         access.requireCanTake(attendance.getBatch(), attendance.getClassSchedule());
+        if (attendance.getStatus() == AttendanceStatus.HOLIDAY || request.status() == AttendanceStatus.HOLIDAY) {
+            throw new BusinessRuleException("Topic holidays cannot be changed manually");
+        }
         AttendanceStatus previous = attendance.getStatus();
 
         // A correction replaces the mark with everything it records, like saving the sheet does.
@@ -323,10 +352,10 @@ public class AttendanceService {
                        boolean noUniform, boolean noIdTag, String remarks) {
         attendance.setStatus(status);
         attendance.setLateMinutes(status == AttendanceStatus.LATE ? lateMinutes : null);
-        attendance.setAbsenceReason(status.isAway() ? reason : null);
+        attendance.setAbsenceReason(status.isAway() ? (reason == null ? AbsenceReason.NOT_INFORMED : reason) : null);
         // Nothing can be observed about a student who is not there.
-        attendance.setNoUniform(!status.isAway() && noUniform);
-        attendance.setNoIdTag(!status.isAway() && noIdTag);
+        attendance.setNoUniform(status.countsAsAttended() && noUniform);
+        attendance.setNoIdTag(status.countsAsAttended() && noIdTag);
         attendance.setRemarks(blankToNull(remarks));
     }
 

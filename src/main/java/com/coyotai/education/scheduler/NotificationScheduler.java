@@ -6,12 +6,9 @@ import com.coyotai.education.platform.ProjectConfigService;
 import com.coyotai.education.whatsapp.WhatsAppProperties;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
 import java.time.Instant;
-import java.util.concurrent.TimeUnit;
-// import java.util.concurrent.TimeUnit; // Enable with the interval annotation below.
 
 /** Drains due notification batches at the configured daily time and timezone. */
 @Component
@@ -30,15 +27,7 @@ public class NotificationScheduler {
         this.configService = configService;
     }
 
-    // Daily at 11:00 AM India time. Cron fields: second minute hour day month weekday.
-	/*
-	 * @Scheduled(cron = "${whatsapp.queue.daily-cron:0 0 11 * * *}", zone =
-	 * "${whatsapp.queue.time-zone:Asia/Kolkata}")
-	 */
-    // Alternative: every 30 MINUTES. Comment the daily annotation before enabling this.
-     @Scheduled(fixedDelayString = "${whatsapp.queue.fixed-delay-seconds:1800}",
-             initialDelayString = "${whatsapp.queue.fixed-delay-seconds:1800}",
-             timeUnit = TimeUnit.SECONDS)
+    // Trigger selection lives in NotificationScheduleConfiguration.
     public void run() {
         if (!whatsAppProperties.queue().enabled() || !configService.isModuleEnabled(ModuleCode.NOTIFICATIONS)) {
             return;

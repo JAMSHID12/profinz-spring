@@ -5,6 +5,7 @@ import com.coyotai.education.platform.ModuleCode;
 import com.coyotai.education.platform.ProjectConfigService;
 import com.coyotai.education.whatsapp.WhatsAppProperties;
 import org.junit.jupiter.api.Test;
+import org.springframework.boot.test.context.runner.ApplicationContextRunner;
 import org.mockito.ArgumentCaptor;
 import org.springframework.boot.env.YamlPropertySourceLoader;
 import org.springframework.core.io.ClassPathResource;
@@ -21,11 +22,31 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
 class NotificationSchedulerTest {
+    @Test void registersOnlyDailyTriggerWhenRequested() {
+        new ApplicationContextRunner().withUserConfiguration(NotificationScheduleConfiguration.class)
+                .withPropertyValues("whatsapp.queue.schedule-mode=daily")
+                .withBean(NotificationScheduler.class, () -> mock(NotificationScheduler.class))
+                .run(context -> {
+                    assertThat(context).hasSingleBean(NotificationScheduleConfiguration.DailySchedule.class);
+                    assertThat(context).doesNotHaveBean(NotificationScheduleConfiguration.IntervalSchedule.class);
+                });
+    }
+
+    @Test void registersOnlyIntervalTriggerWhenRequested() {
+        new ApplicationContextRunner().withUserConfiguration(NotificationScheduleConfiguration.class)
+                .withBean(NotificationScheduler.class, () -> mock(NotificationScheduler.class))
+                .withPropertyValues("whatsapp.queue.schedule-mode=interval")
+                .run(context -> {
+                    assertThat(context).hasSingleBean(NotificationScheduleConfiguration.IntervalSchedule.class);
+                    assertThat(context).doesNotHaveBean(NotificationScheduleConfiguration.DailySchedule.class);
+                });
+    }
+
     @Test void configuredCronRunsAtElevenAmIndiaTime() throws Exception {
         var environment = new StandardEnvironment();
         new YamlPropertySourceLoader().load("application", new ClassPathResource("application.yml"))
                 .forEach(source -> environment.getPropertySources().addFirst(source));
-        var annotation = NotificationScheduler.class.getMethod("run").getAnnotation(Scheduled.class);
+        var annotation = NotificationScheduleConfiguration.DailySchedule.class.getMethod("run").getAnnotation(Scheduled.class);
         var cron = CronExpression.parse(environment.resolveRequiredPlaceholders(annotation.cron()));
         var zone = ZoneId.of(environment.resolveRequiredPlaceholders(annotation.zone()));
         var before = ZonedDateTime.of(2026, 9, 22, 10, 59, 0, 0, zone);

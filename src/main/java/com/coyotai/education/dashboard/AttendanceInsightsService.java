@@ -69,7 +69,7 @@ public class AttendanceInsightsService {
     static final double AT_RISK_BELOW = 75;
 
     /** Which mark stands for a day with several (whole day plus classes): the most serious one. */
-    private static final List<AttendanceStatus> SEVERITY = List.of(ABSENT, EXCUSED, LATE, PRESENT);
+    private static final List<AttendanceStatus> SEVERITY = List.of(ABSENT, EXCUSED, LATE, PRESENT, AttendanceStatus.HOLIDAY);
 
     // Discipline record kinds, as indexes into per-student and per-day counters.
     private static final int UNIFORM = 0;
@@ -140,7 +140,7 @@ public class AttendanceInsightsService {
                 totals,
                 previousTotals.hasData() ? previousTotals : null,
                 todaySnapshot(today, ids, activeStudents),
-                students.stream().filter(student -> student.summary().attendancePercentage() < AT_RISK_BELOW).count(),
+                students.stream().filter(student -> student.summary().hasData() && student.summary().attendancePercentage() < AT_RISK_BELOW).count(),
                 daily ? "DAY" : "WEEK",
                 trend(period, days, daily),
                 compare ? trend(previous, previousDays, daily) : List.of(),
@@ -187,7 +187,7 @@ public class AttendanceInsightsService {
      * issues, or late for one class in eight.
      */
     static Risk riskOf(AttendanceSummary summary, long late, long issues) {
-        double attendance = summary.attendancePercentage();
+        double attendance = summary.hasData() ? summary.attendancePercentage() : 100d;
         double lateShare = summary.totalClasses() == 0 ? 0 : late * 100d / summary.totalClasses();
         if (attendance < 65 || (attendance < AT_RISK_BELOW && issues >= 3)) {
             return Risk.CRITICAL;
@@ -239,42 +239,29 @@ public class AttendanceInsightsService {
         long present = worst.values().stream().filter(status -> status == PRESENT || status == LATE).count();
         long late = worst.values().stream().filter(status -> status == LATE).count();
         long absentWithoutReason = worst.entrySet().stream()
-                .filter(entry -> entry.getValue() == ABSENT && reasons.get(entry.getKey()) == null).count();
-        return new TodaySnapshot(worst.size(), present, late, worst.size() - present, absentWithoutReason,
+                .filter(entry -> entry.getValue() == ABSENT && reasons.get(entry.getKey()) != AbsenceReason.INFORMED).count();
+        return new TodaySnapshot(worst.size(), present, late, worst.values().stream().filter(AttendanceStatus::isAway).count(), absentWithoutReason,
                 Math.max(0, activeStudents - worst.size()));
     }
 
-    /** Absent marks by recorded reason; excused marks are approved absences. */
+    /** Away marks grouped by whether the centre was informed. */
     private List<ReasonCount> absenceReasons(Period period, Collection<Long> ids) {
-        long medical = 0;
-        long personal = 0;
-        long approved = 0;
-        long uninformed = 0;
-        long other = 0;
+        long informed = 0;
+        long notInformed = 0;
         for (Object[] row : attendanceRepository.countAwayByReason(period.from(), period.to(), ids)) {
             long count = ((Number) row[2]).longValue();
-            if (row[0] == EXCUSED) {
-                approved += count;
-            } else if (row[1] == null) {
-                uninformed += count;
-            } else if (row[1] == AbsenceReason.MEDICAL) {
-                medical += count;
-            } else if (row[1] == AbsenceReason.PERSONAL) {
-                personal += count;
-            } else {
-                other += count;
-            }
+            if (row[1] == AbsenceReason.INFORMED) informed += count;
+            else notInformed += count;
         }
-        return List.of(new ReasonCount("MEDICAL", "Medical", medical), new ReasonCount("PERSONAL", "Personal", personal),
-                new ReasonCount("APPROVED", "Approved", approved), new ReasonCount("UNINFORMED", "Uninformed", uninformed),
-                new ReasonCount("OTHER", "Other", other));
+        return List.of(new ReasonCount("INFORMED", "Informed", informed),
+                new ReasonCount("NOT_INFORMED", "Not informed", notInformed));
     }
 
     private static List<WeekdayRate> weekdays(Map<LocalDate, Map<AttendanceStatus, Long>> days) {
         Map<DayOfWeek, long[]> totals = new EnumMap<>(DayOfWeek.class);
         days.forEach((day, counts) -> {
             long[] total = totals.computeIfAbsent(day.getDayOfWeek(), key -> new long[2]);
-            total[0] += counts.values().stream().mapToLong(Long::longValue).sum();
+            total[0] += AttendanceSummary.fromCounts(counts).totalClasses();
             total[1] += count(counts, PRESENT) + count(counts, LATE);
         });
         return Arrays.stream(DayOfWeek.values())

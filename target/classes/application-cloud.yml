@@ -1,0 +1,23 @@
+# Shared by staging and production through spring.profiles.group.
+# Railway service variables supply secrets; do not upload .env files.
+spring:
+  datasource:
+    # A full SPRING_DATASOURCE_URL can override this; use jdbc:mysql://, not mysql://.
+    url: jdbc:mysql://${DB_HOST}:${DB_PORT}/${DB_NAME}?useSSL=false&allowPublicKeyRetrieval=true&connectionTimeZone=UTC&forceConnectionTimeZoneToSession=true&characterEncoding=UTF-8
+    username: ${DB_USERNAME}
+    password: ${DB_PASSWORD}
+  jpa:
+    show-sql: false
+app:
+  jwt:
+    secret: ${JWT_SECRET}
+  cors:
+    allowed-origins: ${CORS_ALLOWED_ORIGINS}
+project:
+  bootstrap:
+    seed-sample-data: false
+  student:
+    default-password: ${PROJECT_STUDENT_DEFAULT_PASSWORD}
+storage:
+  student-photos:
+    directory: ${STUDENT_PHOTO_DIRECTORY:/data/student-photos}

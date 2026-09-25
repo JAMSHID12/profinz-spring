@@ -32,12 +32,22 @@ public class NotificationService {
     private static final Logger log = LoggerFactory.getLogger(NotificationService.class);
     private static final int MAX_ERROR_LENGTH = 500;
 
+    private final long lateMessageDelaySeconds;
     private final NotificationRepository repository;
     private final ProjectConfigService configService;
     private final WhatsAppProperties whatsAppProperties;
 
     public NotificationService(NotificationRepository repository, ProjectConfigService configService,
                                WhatsAppProperties whatsAppProperties) {
+        this(repository, configService, whatsAppProperties, 120);
+    }
+
+    @org.springframework.beans.factory.annotation.Autowired
+    public NotificationService(NotificationRepository repository, ProjectConfigService configService,
+            WhatsAppProperties whatsAppProperties,
+            @org.springframework.beans.factory.annotation.Value("${whatsapp.queue.late-message-delay-seconds:120}") long delaySeconds) {
+        if (delaySeconds < 0) throw new IllegalArgumentException("Late message delay cannot be negative");
+        this.lateMessageDelaySeconds = delaySeconds;
         this.repository = repository;
         this.configService = configService;
         this.whatsAppProperties = whatsAppProperties;
@@ -127,8 +137,10 @@ public class NotificationService {
         notification.setStudent(student);
         notification.setTitle(content.title());
         notification.setStatus(Notification.Status.PENDING);
-        notification.setScheduledAt(Instant.now());
-        notification.setCreatedAt(Instant.now());
+        Instant createdAt = Instant.now();
+        notification.setScheduledAt(channel == NotificationChannel.WHATSAPP && event == NotificationEvent.STUDENT_LATE
+                ? createdAt.plusSeconds(lateMessageDelaySeconds) : createdAt);
+        notification.setCreatedAt(createdAt);
         return notification;
     }
 

@@ -7,7 +7,9 @@ public enum AttendanceStatus {
     ABSENT,
     LATE,
     /** An allowed absence (e.g. approved leave). No message to the parent. */
-    EXCUSED;
+    EXCUSED,
+    /** Not required to attend; excluded from the attendance denominator. */
+    HOLIDAY;
 
     /** Late arrivals count as attended; absences, excused or not, do not. */
     public boolean countsAsAttended() {

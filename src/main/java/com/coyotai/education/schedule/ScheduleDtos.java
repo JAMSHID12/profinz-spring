@@ -27,14 +27,14 @@ public final class ScheduleDtos {
             @Size(max = 500) String notes,
             /* Optional: repeat on the same weekday until this date (inclusive). */
             LocalDate repeatWeeklyUntil,
-            ClassSchedule.Status status
+            ClassSchedule.Status status, Long topicId
     ) {
     }
 
     public record ScheduleResponse(Long id, Ref batch, Ref course, Ref subject, Ref faculty, LocalDate scheduleDate,
                                    @JsonFormat(pattern = "HH:mm") LocalTime startTime,
                                    @JsonFormat(pattern = "HH:mm") LocalTime endTime,
-                                   String room, ClassSchedule.Status status, String notes) {
+                                   String room, ClassSchedule.Status status, String notes, Ref topic, com.coyotai.education.syllabus.TopicEligibility eligibility, com.coyotai.education.student.EducationCategoryService.Response educationCategory) {
 
         public static ScheduleResponse from(ClassSchedule s) {
             return new ScheduleResponse(s.getId(),
@@ -42,7 +42,10 @@ public final class ScheduleDtos {
                     Ref.of(s.getCourse().getId(), s.getCourse().getName()),
                     Ref.of(s.getSubject().getId(), s.getSubject().getName()),
                     s.getFaculty() == null ? null : Ref.of(s.getFaculty().getId(), s.getFaculty().getFullName()),
-                    s.getScheduleDate(), s.getStartTime(), s.getEndTime(), s.getRoom(), s.getStatus(), s.getNotes());
+                    s.getScheduleDate(), s.getStartTime(), s.getEndTime(), s.getRoom(), s.getStatus(), s.getNotes(),
+                    s.getTopic() == null ? null : Ref.of(s.getTopic().getId(), s.getTopic().getTitle()),
+                    s.getTopic() == null ? com.coyotai.education.syllabus.TopicEligibility.BOTH : s.getTopic().getEligibility(),
+                    s.getTopic() == null ? null : com.coyotai.education.student.EducationCategoryService.Response.from(s.getTopic().getEducationCategory()));
         }
     }
 

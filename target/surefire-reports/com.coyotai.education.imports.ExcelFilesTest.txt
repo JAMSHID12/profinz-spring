@@ -1,0 +1,4 @@
+-------------------------------------------------------------------------------
+Test set: com.coyotai.education.imports.ExcelFilesTest
+-------------------------------------------------------------------------------
+Tests run: 5, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 1.759 s -- in com.coyotai.education.imports.ExcelFilesTest

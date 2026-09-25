@@ -1,8 +1,7 @@
 package com.coyotai.education.attendance;
 
-/** Why a student was absent or excused. */
+/** Whether the centre was informed about an absence. */
 public enum AbsenceReason {
-    MEDICAL,
-    PERSONAL,
-    OTHER
+    INFORMED,
+    NOT_INFORMED
 }

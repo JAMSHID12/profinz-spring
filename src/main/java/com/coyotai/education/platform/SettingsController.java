@@ -77,7 +77,7 @@ public class SettingsController {
         whatsapp.put("baseUrl", whatsAppProperties.wabi().baseUrl());
         if (whatsAppProperties.usesWabi()) {
             whatsapp.put("event", whatsAppProperties.wabi().event());
-            whatsapp.put("apiKeyConfigured", notBlank(whatsAppProperties.wabi().apiKey()));
+            whatsapp.put("apiKeyConfigured", whatsAppProperties.wabi().hasKey());
         }
         whatsapp.put("templates", templates);
         whatsapp.put("queueIntervalSeconds", whatsAppProperties.queue().fixedDelaySeconds());

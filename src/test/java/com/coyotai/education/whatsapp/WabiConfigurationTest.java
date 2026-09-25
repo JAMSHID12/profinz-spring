@@ -17,7 +17,7 @@ class WabiConfigurationTest {
         var sources = new YamlPropertySourceLoader().load("application", new ClassPathResource("application.yml"));
         assertThat(sources).hasSize(1);
         var source = sources.get(0);
-        assertThat(source.getProperty("spring.jpa.show-sql")).isEqualTo(true);
+        assertThat(source.getProperty("spring.jpa.show-sql")).isEqualTo("${JPA_SHOW_SQL:false}");
         assertThat(source.getProperty("spring.jpa.properties.hibernate.jdbc.time_zone")).isEqualTo("UTC");
         assertThat(source.getProperty("whatsapp.provider")).isEqualTo("${WHATSAPP_PROVIDER:WABI}");
         assertThat(source.getProperty("whatsapp.wabi.api-key")).isEqualTo("${WABI_API_KEY:}");

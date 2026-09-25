@@ -44,12 +44,14 @@ public class ScheduleService {
     private final NotificationService notificationService;
     private final NotificationMessageFactory messageFactory;
     private final AuditService auditService;
+    private final com.coyotai.education.syllabus.SyllabusTopicRepository topics;
 
     public ScheduleService(ClassScheduleRepository repository, BatchService batchService, CourseService courseService,
                            StaffService staffService, StudentRepository studentRepository,
                            DataScopeService dataScopeService, NotificationService notificationService,
-                           NotificationMessageFactory messageFactory, AuditService auditService) {
+                           NotificationMessageFactory messageFactory, AuditService auditService, com.coyotai.education.syllabus.SyllabusTopicRepository topics) {
         this.repository = repository;
+        this.topics = topics;
         this.batchService = batchService;
         this.courseService = courseService;
         this.staffService = staffService;
@@ -120,6 +122,7 @@ public class ScheduleService {
             schedule.setEndTime(request.endTime());
             schedule.setRoom(blankToNull(request.room()));
             schedule.setNotes(blankToNull(request.notes()));
+            schedule.setTopic(topicOf(request));
             schedule.setStatus(ClassSchedule.Status.SCHEDULED);
             repository.save(schedule);
             created.add(ScheduleResponse.from(schedule));
@@ -155,6 +158,7 @@ public class ScheduleService {
         schedule.setEndTime(request.endTime());
         schedule.setRoom(blankToNull(request.room()));
         schedule.setNotes(blankToNull(request.notes()));
+        schedule.setTopic(topicOf(request));
         schedule.setStatus(newStatus);
 
         if (cancelled) {
@@ -196,7 +200,17 @@ public class ScheduleService {
         return dates;
     }
 
+    private com.coyotai.education.syllabus.SyllabusTopic topicOf(ScheduleRequest request) {
+        if (request.topicId() == null) return null;
+        var topic = topics.findById(request.topicId()).orElseThrow(() -> ResourceNotFoundException.of("Topic", request.topicId()));
+        if (!topic.isActive() || !topic.getSubject().getId().equals(request.subjectId())) {
+            throw new BusinessRuleException("Choose an active topic belonging to the selected subject");
+        }
+        return topic;
+    }
+
     private void validate(ScheduleRequest request) {
+        topicOf(request);
         if (!request.startTime().isBefore(request.endTime())) {
             throw new BusinessRuleException("The start time must be before the end time");
         }

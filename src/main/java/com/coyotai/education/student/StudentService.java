@@ -44,12 +44,13 @@ public class StudentService {
     private final DataScopeService dataScopeService;
     private final ProjectConfigService configService;
     private final AuditService auditService;
+    private final EducationCategoryService educationCategories;
 
     public StudentService(StudentRepository studentRepository, StudentBatchAssignmentRepository assignmentRepository,
                           BatchService batchService, CourseService courseService, StudentIdentifiers identifiers, StudentPhotoStorage photos,
                           UserService userService, PasswordEncoder passwordEncoder,
                           DataScopeService dataScopeService, ProjectConfigService configService,
-                          AuditService auditService) {
+                          AuditService auditService, EducationCategoryService educationCategories) {
         this.studentRepository = studentRepository;
         this.assignmentRepository = assignmentRepository;
         this.batchService = batchService;
@@ -61,6 +62,7 @@ public class StudentService {
         this.dataScopeService = dataScopeService;
         this.configService = configService;
         this.auditService = auditService;
+        this.educationCategories = educationCategories;
     }
 
     @Transactional(readOnly = true)
@@ -214,6 +216,19 @@ public class StudentService {
 
     private void applyProfile(Student student, StudentRequest request) {
         student.setFullName(request.fullName().trim());
+        if (request.educationCategoryId() != null) {
+            var category = educationCategories.select(request.educationCategoryId(), student.getEducationCategoryMaster());
+            student.setEducationCategoryMaster(category);
+            student.setEducationCategory(switch (category.getCode()) {
+                case "PLUS_TWO" -> Student.EducationCategory.PLUS_TWO;
+                case "DEGREE" -> Student.EducationCategory.DEGREE;
+                default -> null;
+            });
+        } else if (request.educationCategory() != null) {
+            var category = educationCategories.byCode(request.educationCategory().name());
+            student.setEducationCategoryMaster(educationCategories.select(category.getId(), student.getEducationCategoryMaster()));
+            student.setEducationCategory(request.educationCategory());
+        }
         student.setDateOfBirth(request.dateOfBirth());
         student.setGender(blankToNull(request.gender()));
         student.setMobile(blankToNull(request.mobile()));

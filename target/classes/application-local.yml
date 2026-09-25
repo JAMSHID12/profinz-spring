@@ -1,0 +1,7 @@
+# IDE/Maven only. Railway profiles never import a developer's .env file.
+spring:
+  config:
+    import: "optional:file:../.env.example[.properties],optional:file:.env.example[.properties]"
+storage:
+  student-photos:
+    directory: ${STUDENT_PHOTO_DIRECTORY:D:/Profinz/photo/student}

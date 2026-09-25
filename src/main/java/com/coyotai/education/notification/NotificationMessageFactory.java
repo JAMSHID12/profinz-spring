@@ -30,8 +30,9 @@ public class NotificationMessageFactory {
     public NotificationContent absent(String parent, String student, String className, LocalDate date) {
         return content("Absent on " + date(date),
                 List.of(parent, student, dash(className), date(date), centre()),
-                "Dear " + parent + ", " + student + " was marked absent from " + dash(className)
-                        + " on " + date(date) + ". - " + centre());
+                "Dear " + parent + ",\n\nThis is an attendance update from " + centre() + ".\n\n"
+                        + student + " was marked absent from " + dash(className) + " on " + date(date)
+                        + ".\n\nIf you believe this record is incorrect, please contact the centre office.\n\nThank you.");
     }
 
     /** {{1}} parent, {{2}} student, {{3}} class, {{4}} date, {{5}} centre. */

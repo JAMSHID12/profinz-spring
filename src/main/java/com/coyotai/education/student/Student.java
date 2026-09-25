@@ -34,6 +34,17 @@ import java.time.LocalDate;
 @NoArgsConstructor
 public class Student extends AuditedEntity {
 
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "education_category_id")
+    private com.coyotai.education.student.EducationCategory educationCategoryMaster;
+
+    public enum EducationCategory { PLUS_TWO, DEGREE }
+
+    @Enumerated(EnumType.STRING)
+    @JdbcTypeCode(SqlTypes.VARCHAR)
+    @Column(name = "education_category", length = 20)
+    private EducationCategory educationCategory;
+
     public enum Status { ACTIVE, INACTIVE, COMPLETED, DROPPED, SUSPENDED }
 
     /** Login account, when the student has portal access. */

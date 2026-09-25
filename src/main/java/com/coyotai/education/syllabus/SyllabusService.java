@@ -36,10 +36,11 @@ public class SyllabusService {
     private final DataScopeService dataScopeService;
     private final ProjectConfigService configService;
     private final AuditService auditService;
+    private final com.coyotai.education.student.EducationCategoryService educationCategories;
 
     public SyllabusService(SyllabusTopicRepository topicRepository, SyllabusProgressRepository progressRepository,
                            CourseService courseService, BatchService batchService, DataScopeService dataScopeService,
-                           ProjectConfigService configService, AuditService auditService) {
+                           ProjectConfigService configService, AuditService auditService, com.coyotai.education.student.EducationCategoryService educationCategories) {
         this.topicRepository = topicRepository;
         this.progressRepository = progressRepository;
         this.courseService = courseService;
@@ -47,6 +48,7 @@ public class SyllabusService {
         this.dataScopeService = dataScopeService;
         this.configService = configService;
         this.auditService = auditService;
+        this.educationCategories = educationCategories;
     }
 
     public record TopicRequest(
@@ -55,17 +57,17 @@ public class SyllabusService {
             @Size(max = 1000) String description,
             @Min(value = 1, message = "Sequence starts at 1") Integer sequenceNo,
             @DecimalMin(value = "0", message = "Planned hours cannot be negative") BigDecimal plannedHours,
-            Boolean active
+            Boolean active, TopicEligibility eligibility, Long educationCategoryId
     ) {
     }
 
     public record TopicResponse(Long id, Ref course, Ref subject, String title, String description, int sequenceNo,
-                                BigDecimal plannedHours, boolean active) {
+                                BigDecimal plannedHours, boolean active, TopicEligibility eligibility, com.coyotai.education.student.EducationCategoryService.Response educationCategory) {
 
         static TopicResponse from(SyllabusTopic t) {
             return new TopicResponse(t.getId(), Ref.of(t.getCourse().getId(), t.getCourse().getName()),
                     Ref.of(t.getSubject().getId(), t.getSubject().getName()), t.getTitle(), t.getDescription(),
-                    t.getSequenceNo(), t.getPlannedHours(), t.isActive());
+                    t.getSequenceNo(), t.getPlannedHours(), t.isActive(), t.getEligibility(), com.coyotai.education.student.EducationCategoryService.Response.from(t.getEducationCategory()));
         }
     }
 
@@ -107,6 +109,19 @@ public class SyllabusService {
         topic.setSequenceNo(request.sequenceNo() == null ? nextSequence(subject.getId()) : request.sequenceNo());
         topic.setPlannedHours(request.plannedHours());
         topic.setActive(request.active() == null || request.active());
+        if (request.eligibility() == TopicEligibility.BOTH) {
+            topic.setEligibility(TopicEligibility.BOTH);
+            topic.setEducationCategory(null);
+        } else if (request.educationCategoryId() != null) {
+            topic.setEducationCategory(educationCategories.select(request.educationCategoryId(), topic.getEducationCategory()));
+            topic.setEligibility(TopicEligibility.CATEGORY_ONLY);
+        } else if (request.eligibility() == TopicEligibility.CATEGORY_ONLY) {
+            throw new BusinessRuleException("Select an education category for this topic");
+        } else if (request.eligibility() != null) {
+            var category = educationCategories.byCode(request.eligibility() == TopicEligibility.PLUS_TWO_ONLY ? "PLUS_TWO" : "DEGREE");
+            topic.setEducationCategory(educationCategories.select(category.getId(), topic.getEducationCategory()));
+            topic.setEligibility(TopicEligibility.CATEGORY_ONLY);
+        }
         topicRepository.save(topic);
         auditService.record("SyllabusTopic", topic.getId(), id == null ? AuditService.CREATE : AuditService.UPDATE,
                 (id == null ? "Added" : "Updated") + " topic \"" + topic.getTitle() + "\" in " + subject.getName());

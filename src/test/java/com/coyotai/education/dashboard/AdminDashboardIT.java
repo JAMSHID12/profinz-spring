@@ -197,9 +197,9 @@ class AdminDashboardIT extends IntegrationTestBase {
                     + week.path("excused").asLong()).as(week.path("label").asText()).isPositive();
         }
         JsonNode reasons = history.path("absenceReasons");
-        assertThat(find(reasons, "key", "MEDICAL").path("count").asLong()).isPositive();
-        assertThat(find(reasons, "key", "PERSONAL").path("count").asLong()).isPositive();
-        assertThat(find(reasons, "key", "UNINFORMED").path("count").asLong()).isPositive();
+        assertThat(reasons).hasSize(2);
+        assertThat(find(reasons, "key", "INFORMED").path("count").asLong()).isPositive();
+        assertThat(find(reasons, "key", "NOT_INFORMED").path("count").asLong()).isPositive();
         assertThat(history.path("discipline").path("noUniform").asLong()).isPositive();
         assertThat(history.path("discipline").path("noIdTag").asLong()).isPositive();
 

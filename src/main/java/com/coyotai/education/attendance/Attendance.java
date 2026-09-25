@@ -61,9 +61,8 @@ public class Attendance extends AuditedEntity {
     @Column(name = "late_minutes")
     private Integer lateMinutes;
 
-    /** Only for ABSENT and EXCUSED. */
-    @Enumerated(EnumType.STRING)
-    @JdbcTypeCode(SqlTypes.VARCHAR)
+    /** Only for ABSENT and EXCUSED; the converter also reads pre-migration reason codes. */
+    @jakarta.persistence.Convert(converter = AbsenceReasonConverter.class)
     @Column(name = "absence_reason", length = 20)
     private AbsenceReason absenceReason;
 

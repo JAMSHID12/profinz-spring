@@ -18,8 +18,8 @@ public final class PhoneNumbers {
     }
 
     /**
-     * Extracts digits for internal phone normalization
-     * (country code included). The WABI sender adds the E.164 '+' prefix.
+     * Normalises a number for the WhatsApp Cloud API, which expects digits only
+     * (country code included, no '+', spaces or dashes).
      */
     public static String toWhatsAppFormat(String value) {
         if (value == null) {

@@ -32,15 +32,17 @@ public class ClientBootstrap implements ApplicationRunner {
     private final RoleRepository roleRepository;
     private final DisciplineTypeRepository disciplineTypeRepository;
     private final ExamTypeRepository examTypeRepository;
+    private final com.coyotai.education.student.EducationCategoryRepository educationCategories;
 
     public ClientBootstrap(ClientRegistry clientRegistry, ProjectConfigService configService,
                            RoleRepository roleRepository, DisciplineTypeRepository disciplineTypeRepository,
-                           ExamTypeRepository examTypeRepository) {
+                           ExamTypeRepository examTypeRepository, com.coyotai.education.student.EducationCategoryRepository educationCategories) {
         this.clientRegistry = clientRegistry;
         this.configService = configService;
         this.roleRepository = roleRepository;
         this.disciplineTypeRepository = disciplineTypeRepository;
         this.examTypeRepository = examTypeRepository;
+        this.educationCategories = educationCategories;
     }
 
     @Override
@@ -48,6 +50,14 @@ public class ClientBootstrap implements ApplicationRunner {
     public void run(ApplicationArguments args) {
         Long clientId = clientRegistry.configuredClientId();
         validateRoleConfiguration();
+        if (educationCategories.count() == 0) {
+            String[][] defaults = {{"PLUS_TWO", "+2 Completed Students"}, {"DEGREE", "Degree Completed Students"}};
+            for (int i = 0; i < defaults.length; i++) {
+                var category = new com.coyotai.education.student.EducationCategory();
+                category.setCode(defaults[i][0]); category.setName(defaults[i][1]); category.setDisplayOrder(i + 1);
+                educationCategories.save(category);
+            }
+        }
         if (disciplineTypeRepository.count() == 0) {
             seedDisciplineTypes();
         }
