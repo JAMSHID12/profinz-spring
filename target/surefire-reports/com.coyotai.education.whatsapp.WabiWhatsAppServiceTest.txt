@@ -1,4 +1,4 @@
 -------------------------------------------------------------------------------
 Test set: com.coyotai.education.whatsapp.WabiWhatsAppServiceTest
 -------------------------------------------------------------------------------
-Tests run: 9, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.183 s -- in com.coyotai.education.whatsapp.WabiWhatsAppServiceTest
+Tests run: 9, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.649 s -- in com.coyotai.education.whatsapp.WabiWhatsAppServiceTest

@@ -90,7 +90,10 @@ public class NotificationService {
     }
 
     private boolean queueWhatsApp(NotificationEvent event, Student student, NotificationContent content) {
-        if (!whatsAppProperties.supportsEvent(event)) return false;
+        // Preserve absent notifications even if the provider key has not been configured
+        // yet. Delivery reports the missing key as FAILED, allowing a manual retry after
+        // configuration is corrected instead of losing the parent's notification.
+        if (event != NotificationEvent.STUDENT_ABSENT && !whatsAppProperties.supportsEvent(event)) return false;
         ParentContact parent = student.getParent();
         if (!canMessageParent(parent)) {
             return false;
